@@ -6,9 +6,12 @@ var logger = require("morgan");
 var mongoose = require("mongoose");
 // const userdb = require("../myExpressApp/schema/Model/users")
 var indexRouter = require("./routes/index");
+var itemsRouter = require("./routes/items");
 var usersRouter = require("./routes/users");
 var studentsRouter = require("./routes/students");
 var productsRouter = require("./routes/products");
+var authenRouter = require("./routes/authen");
+
 const { error } = require("console");
 
 var app = express();
@@ -24,9 +27,11 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
+app.use("/items", itemsRouter);
 app.use("/users", usersRouter);
 app.use("/students", studentsRouter);
 app.use("/products", productsRouter);
+app.use("/authen", authenRouter);
 
 mongoose.connect("mongodb://127.0.0.1:27017/TestDB")
 mongoose.connection.on('error', err => {

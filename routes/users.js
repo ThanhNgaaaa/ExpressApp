@@ -1,11 +1,13 @@
 var express = require("express");
 const responseData = require("../helpers/responseData");
 var router = express.Router();
-
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 var modelUser = require("../Model/user");
 var usersshc = require("../schema/users");
 const { body, validationResult } = require("express-validator");
 var validate = require('../validates/user')
+var jwt = require('jsonwebtoken');
 
 /* GET users listing. */
 router.get("/", async function (req, res, next) {
@@ -40,6 +42,7 @@ router.post("/add", validate.validator(), async function (req, res, next) {
       email: req.body.email,
       username: req.body.username,
       password: req.body.password,
+      role: req.body.role
     });
     responseData.responseReturn(res, 200, true, newUser);
   }
