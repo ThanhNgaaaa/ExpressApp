@@ -17,4 +17,15 @@ module.exports = {
   login: function (username, password) {
     return schemaUser.checkLogin(username, password);
   },
+  getByEmail: function (email) {
+      return schemaUser.findOne({ email: email }).exec();
+  },
+  getByTokenForgot: function (token) {
+      return schemaUser.findOne(
+          {
+              tokenForgot: token,
+              tokenForgotExp: { $gte: Date.now() }
+          }
+      ).exec();
+  },
 };

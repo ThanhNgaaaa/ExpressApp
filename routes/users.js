@@ -8,6 +8,7 @@ var usersshc = require("../schema/users");
 const { body, validationResult } = require("express-validator");
 var validate = require('../validates/user')
 var jwt = require('jsonwebtoken');
+var department = require('../Model/department')
 
 /* GET users listing. */
 router.get("/", async function (req, res, next) {
@@ -16,8 +17,14 @@ router.get("/", async function (req, res, next) {
 });
 router.get("/:id", async function (req, res, next) {
   try {
-    var user = await modelUser.getById(req.params.id);
-    responseData.responseReturn(res, 200, true, user);
+    var user = await modelUser.getById(req.params.id).populate('departmentId');
+    const userData = {
+      email: user.email,
+      username: user.username,
+      role: user.role,
+      department: user.departmentId.name // Lấy tên phòng ban từ trường name của mô hình Department
+    };
+    responseData.responseReturn(res, 200, true, userData);
   } catch (error) {
     responseData.responseReturn(res, 404, false, "khong tim thay user");
   }
@@ -42,7 +49,8 @@ router.post("/add", validate.validator(), async function (req, res, next) {
       email: req.body.email,
       username: req.body.username,
       password: req.body.password,
-      role: req.body.role
+      role: req.body.role,
+      departmentId : req.body.departmentId
     });
     responseData.responseReturn(res, 200, true, newUser);
   }

@@ -9,16 +9,21 @@ module.exports = {
       result.err = "Vui lòng đăng nhập";
       return result;
     }
-    if (token.startsWith("Bearer")) {
+    if (token&&token.startsWith("Bearer")) {
       token = token.split(" ")[1];
-      try {
-        var userID = await jwt.verify(token, configs.SECRET_KEY);
-        return userID.id;
-      } catch (error) {
+      
+    } else {
+      if(req.cookies.tokenJWT){
+        token = req.cookies.tokenJWT;
+      }else{
         result.err = "Vui long dang nhap";
         return result;
-      }
-    } else {
+      }    
+    }
+    try {
+      var userID = await jwt.verify(token, configs.SECRET_KEY);
+      return result = userID.id;
+    } catch (error) {
       result.err = "Vui long dang nhap";
       return result;
     }

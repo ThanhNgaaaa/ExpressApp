@@ -10,6 +10,7 @@ var jwt = require("jsonwebtoken");
 var cookieParser = require("cookie-parser");
 const configs = require("../helpers/configs");
 const { checkLogin,checkRole } = require("../middlewares/protect");
+const sendmail = require('../helpers/sendmail');
 
 /* GET users listing. */
 
@@ -50,7 +51,10 @@ router.post("/login", async function (req, res, next) {
   }
   console.log(result);
   var token = result.getJWT();
-  res.cookie("tokenJWT", token);
+  res.cookie('tokenJWT',token,{
+    expires:new Date(Date.now()+2*24*3600*1000),
+    httpOnly:true
+  });
   responseData.responseReturn(res, 200, true, token);
 });
 
@@ -63,9 +67,10 @@ router.get(
       return;
     }
     req.userID = result;
+    console.log(result);
     next();
   },
-  checkRole("admin"),
+  // checkRole("admin"),
   async function (req, res, next) {
     try {
       var user = await modelUser.getById(req.userID);
@@ -75,4 +80,43 @@ router.get(
     }
   }
 );
+router.get('/logout', async function(req, res, next){
+  res.cookie('tokenJWT','none',{
+    expires:new Date(Date.now()+1000),
+    httpOnly:true
+  });
+  responseData.responseReturn(res, 200, true, 'logout thanh cong');
+})
+router.post('/forgetPassword', async function(req, res, next){
+  var email = req.body.email;
+  var user = await modelUser.getByEmail(email);
+  if(!user){
+    return ;//return loi
+  }
+  console.log(user);
+  user.addTokenForgotPassword();
+  await user.save();
+  try {
+   await sendmail.send(user.email,user.tokenForgot);
+
+    return responseData.responseReturn(res, 200, true,'gui mail thanh cong');
+  } catch (error) {
+    user.tokenForgot = undefined;
+    user.tokenForgotExp = undefined;
+    responseData.responseReturn(res, 400, true,'gui mail loi vui long thu lai'+error);
+  }  
+  next();
+})
+router.post('/resetPassword/:token', async function(req, res, next){
+  var token = req.params.token;
+  var password = req.body.password;
+  console.log(password);
+  var user = await modelUser.getByTokenForgot(token);
+  console.log(token);
+  console.log(user);
+  user.password = password;
+  user.tokenForgot = undefined;
+  user.tokenForgotExp = undefined;
+  await user.save();
+})
 module.exports = router;
