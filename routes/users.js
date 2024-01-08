@@ -11,9 +11,14 @@ var jwt = require('jsonwebtoken');
 var department = require('../Model/department')
 
 /* GET users listing. */
-router.get("/", async function (req, res, next) {
-  var userAll = await modelUser.getAll();
-  responseData.responseReturn(res, 200, true, userAll);
+// router.get("/", async function (req, res, next) {
+//   var userAll = await modelUser.getAll();
+//   responseData.responseReturn(res, 200, true, userAll);
+// });
+router.get('/', async function (req, res, next) {
+  console.log(req.query);
+  var usersAll = await modelUser.getall(req.query);
+  responseData.responseReturn(res, 200, true, usersAll);
 });
 router.get("/:id", async function (req, res, next) {
   try {

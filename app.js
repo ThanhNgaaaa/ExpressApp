@@ -12,6 +12,7 @@ var studentsRouter = require("./routes/students");
 var productsRouter = require("./routes/products");
 var authenRouter = require("./routes/authen");
 var departmentRouter = require('./routes/departments');
+var categoryRouter = require('./routes/categories');
 
 const { error } = require("console");
 
@@ -34,6 +35,7 @@ app.use("/students", studentsRouter);
 app.use("/products", productsRouter);
 app.use("/authen", authenRouter);
 app.use("/department",departmentRouter);
+app.use("/category",categoryRouter)
 
 mongoose.connect("mongodb://127.0.0.1:27017/TestDB")
 mongoose.connection.on('error', err => {

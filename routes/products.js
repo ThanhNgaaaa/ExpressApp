@@ -9,7 +9,7 @@ var validate = require("../validates/product");
 
 /* GET users listing. */
 router.get("/", async function (req, res, next) {
-  var productAll = await modelProduct.getAll();
+  var productAll = await modelProduct.getallSort();
   responseData.responseReturn(res, 200, true, productAll);
 });
 router.get("/:id", async function (req, res, next) {
@@ -41,6 +41,9 @@ router.post("/add", validate.validator(), async function (req, res, next) {
       name: req.body.name,
       image: req.body.image,
       price: req.body.price,
+      isDelete: req.body.isDelete,
+      order: req.body.order,
+      categoryId: req.body.categoryId
     });
     responseData.responseReturn(res, 200, true, newProduct);
   }
@@ -58,13 +61,28 @@ router.put("/edit/:id", async function (req, res, next) {
     responseData.responseReturn(res, 404, false, "khong tim thay product");
   }
 });
-router.delete("/delete/:id", async function (req, res, next) {
-  //delete by Id
+router.put("/delete/:id", async function (req, res, next) {
   try {
-    var product = await productschema.findByIdAndDelete(req.params.id);
-    responseData.responseReturn(res, 200, true, "xoa thanh cong");
+    var deletedProduct = await productschema.findByIdAndUpdate(
+      req.params.id,
+      {
+        isDelete:true
+      },
+      { returnDocument: "after" }
+    );
+    console.log(deletedProduct);
+    responseData.responseReturn(res, 200, true, deletedProduct);
   } catch (error) {
     responseData.responseReturn(res, 404, false, "khong tim thay product");
   }
 });
+// router.delete("/delete/:id", async function (req, res, next) {
+//   //delete by Id
+//   try {
+//     var product = await productschema.findByIdAndDelete(req.params.id);
+//     responseData.responseReturn(res, 200, true, "xoa thanh cong");
+//   } catch (error) {
+//     responseData.responseReturn(res, 404, false, "khong tim thay product");
+//   }
+// });
 module.exports = router;
